@@ -1,0 +1,56 @@
+// Draft schema. Use after choosing Prisma for production DB migrations.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ClinicAccount {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  plan            String   @default("starter")
+  configuredEmail String
+  logoUrl         String?
+  primaryColor    String   @default("#19c6b8")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PatientIndex {
+  id               String   @id @default(cuid())
+  clinicId         String
+  chartNumber      String
+  encryptedName    String
+  encryptedContact String?
+  status           String   @default("ready")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([clinicId, chartNumber])
+}
+
+model AgentTask {
+  id           String   @id @default(cuid())
+  clinicId     String
+  patientId    String?
+  title        String
+  priority     String   @default("medium")
+  status       String   @default("open")
+  assignedRole String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AuditEvent {
+  id          String   @id @default(cuid())
+  clinicId    String
+  actorId     String
+  action      String
+  patientId   String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+}
