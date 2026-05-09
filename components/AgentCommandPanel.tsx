@@ -19,7 +19,7 @@ export function AgentCommandPanel() {
       <div className="command-box">
         <span>Try:</span>
         {commands.map((command) => (
-          <button key={command}>{command}</button>
+          <button key={command} type="button">{command}</button>
         ))}
       </div>
     </section>

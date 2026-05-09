@@ -41,6 +41,13 @@ Log: login, patient viewed, file opened, form sent, form submitted, PDF generate
 - Agent can draft/flag/organize; clinic staff approves external messages.
 
 
+## Implemented scaffold controls
+- Security headers and CSP are configured in `next.config.ts`.
+- Request validation starts at `/api/agent/tasks` with Zod schemas in `lib/validation.ts`.
+- `/api/health` exposes deployment readiness checks without leaking secrets.
+- Prisma schema models tenant isolation, audit events, staff approval gates, and encrypted PHI placeholders.
+- CI/verification gate runs typecheck, lint, tests, build, and dependency audit.
+
 ## Compliance requirements checklist
 - Clinic/dentist remains custodian/controller; MedEngs is service provider/processor.
 - Privacy/security addendum per clinic: permitted use, subcontractors, breach notice, audit rights, export/deletion, AI no-training clause.

@@ -1,0 +1,22 @@
+name: MedEngs OfficeAgent CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/medengs-officeagent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25
+          cache: npm
+          cache-dependency-path: projects/medengs-officeagent/package-lock.json
+      - run: npm ci
+      - run: npm run verify

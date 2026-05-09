@@ -53,6 +53,10 @@ p, span, small, em { color: var(--muted); }
 .flag.warning { background: rgba(245,184,75,0.14); color: var(--warn); }
 .flag.critical { background: rgba(255,107,107,0.14); color: var(--danger); }
 .audit-row { grid-template-columns: 130px 1fr auto; align-items: center; }
+.readiness { font-weight: 800; }
+.readiness-pass { color: var(--good); }
+.readiness-warn { color: var(--warn); }
+.readiness-fail { color: var(--danger); }
 @media (max-width: 850px) {
   .hero-grid, .command-panel, .dashboard-header { grid-template-columns: 1fr; display: grid; }
   .feature-grid, .cards, .dashboard-grid, .stats-row { grid-template-columns: 1fr; }

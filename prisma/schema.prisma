@@ -1,4 +1,5 @@
-// Draft schema. Use after choosing Prisma for production DB migrations.
+// Production-oriented schema for the PMS-agnostic MVP.
+// PHI fields are encrypted before persistence; raw prompts and patient messages are never logged.
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,48 +10,129 @@ datasource db {
 }
 
 model ClinicAccount {
-  id              String   @id @default(cuid())
+  id              String         @id @default(cuid())
   name            String
-  slug            String   @unique
-  plan            String   @default("starter")
+  slug            String         @unique
+  plan            String         @default("starter")
   configuredEmail String
   logoUrl         String?
-  primaryColor    String   @default("#19c6b8")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  primaryColor    String         @default("#19c6b8")
+  users           ClinicUser[]
+  patients        PatientIndex[]
+  formTemplates   FormTemplate[]
+  submissions     FormSubmission[]
+  agentTasks      AgentTask[]
+  auditEvents     AuditEvent[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model ClinicUser {
+  id        String        @id @default(cuid())
+  clinicId  String
+  clinic    ClinicAccount @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  email     String
+  name      String
+  role      String
+  mfaEnabled Boolean      @default(false)
+  tasks     AgentTask[]
+  audits    AuditEvent[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([clinicId, email])
+  @@index([clinicId, role])
 }
 
 model PatientIndex {
-  id               String   @id @default(cuid())
+  id               String           @id @default(cuid())
   clinicId         String
+  clinic           ClinicAccount    @relation(fields: [clinicId], references: [id], onDelete: Restrict)
   chartNumber      String
   encryptedName    String
   encryptedContact String?
-  status           String   @default("ready")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  status           String           @default("ready")
+  submissions      FormSubmission[]
+  tasks            AgentTask[]
+  auditEvents      AuditEvent[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@unique([clinicId, chartNumber])
+  @@index([clinicId, status])
+}
+
+model FormTemplate {
+  id          String        @id @default(cuid())
+  clinicId    String
+  clinic      ClinicAccount @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  name        String
+  category    String
+  description String
+  version     Int           @default(1)
+  isActive    Boolean       @default(true)
+  submissions FormSubmission[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([clinicId, name, version])
+  @@index([clinicId, category])
+}
+
+model FormSubmission {
+  id                 String        @id @default(cuid())
+  clinicId           String
+  clinic             ClinicAccount @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  patientId          String
+  patient            PatientIndex  @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  templateId          String
+  template            FormTemplate  @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  secureTokenHash     String        @unique
+  status              String        @default("sent")
+  pdfStorageRef       String?
+  requiresStaffReview Boolean       @default(true)
+  expiresAt           DateTime
+  completedAt         DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([clinicId, status])
+  @@index([patientId, createdAt])
 }
 
 model AgentTask {
-  id           String   @id @default(cuid())
+  id           String         @id @default(cuid())
   clinicId     String
+  clinic       ClinicAccount  @relation(fields: [clinicId], references: [id], onDelete: Restrict)
   patientId    String?
+  patient      PatientIndex?  @relation(fields: [patientId], references: [id], onDelete: Restrict)
   title        String
-  priority     String   @default("medium")
-  status       String   @default("open")
+  priority     String         @default("medium")
+  status       String         @default("open")
   assignedRole String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  assigneeId   String?
+  assignee     ClinicUser?    @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  requiresHumanApproval Boolean @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([clinicId, status, priority])
+  @@index([patientId, status])
 }
 
 model AuditEvent {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   clinicId    String
-  actorId     String
+  clinic      ClinicAccount  @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  actorId     String?
+  actor       ClinicUser?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
   action      String
   patientId   String?
+  patient     PatientIndex?  @relation(fields: [patientId], references: [id], onDelete: Restrict)
   ipAddress   String?
-  createdAt   DateTime @default(now())
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+
+  @@index([clinicId, createdAt])
+  @@index([patientId, createdAt])
 }
