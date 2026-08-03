@@ -27,6 +27,7 @@ This is not a generic ChatGPT wrapper. The product is a clinic workspace with to
 - Patient index: patient number, name, contact, flags.
 - Form library: intake, medical history update, consent, referral, financial policy.
 - Patient link workflow: secure token concept, completion status, PDF output routing.
+- Detailed new-patient intake module spec: `docs/NEW_PATIENT_INTAKE_SPEC.md`.
 - AI agent workspace mock: task-oriented commands for forms/PDFs/follow-ups.
 - Clinic inbox: incomplete forms, urgent flags, missing signatures, follow-ups.
 - Security/compliance documentation and implementation hooks.

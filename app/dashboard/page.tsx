@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { AgentCommandPanel } from '../../components/AgentCommandPanel';
 import { StatCard } from '../../components/StatCard';
 import { getReadinessChecks, summarizeReadiness } from '../../lib/production-readiness';
-import { agentTasks, auditEvents, patients } from '../../lib/sample-data';
+import { agentTasks, auditEvents, integrationStatuses, patients, receptionWorkflows } from '../../lib/sample-data';
 
 export default function DashboardPage() {
   const readinessChecks = getReadinessChecks();
@@ -12,20 +12,46 @@ export default function DashboardPage() {
     <main className="dashboard">
       <nav>
         <Link href="/" className="brand">MedEngs OfficeAgent</Link>
-        <span>Smile North Dental · Pro plan</span>
+        <a href="/pilot">Pilot offer</a>
+        <a href="/setup">Clinic setup</a>
+        <a href="/clinical-notes">Dental notes copilot</a>
       </nav>
 
       <header className="dashboard-header">
         <div>
-          <p className="eyebrow">Clinic inbox</p>
-          <h1>Today’s forms, patient flags, and follow-ups</h1>
+          <p className="eyebrow">Reception command centre</p>
+          <h1>Calls, WhatsApp, forms, documents, time clock, and staff approvals</h1>
         </div>
         <div className="stats-row">
-          <StatCard label="Incomplete forms" value="7" tone="warn" />
-          <StatCard label="Important flags" value="3" tone="warn" />
-          <StatCard label="PDFs routed" value="18" tone="good" />
+          <StatCard label="First-contact tasks" value="12" tone="warn" />
+          <StatCard label="Approval queue" value="5" tone="warn" />
+          <StatCard label="Hours saved demo" value="3.2h" tone="good" />
         </div>
       </header>
+
+      <section className="dashboard-grid compact-grid">
+        <div className="panel wide">
+          <h2>Omnichannel reception queue</h2>
+          {receptionWorkflows.map((workflow) => (
+            <div className="audit-row" key={`${workflow.channel}-${workflow.intent}`}>
+              <span>{workflow.channel.replace('_', ' ')}</span>
+              <strong>{workflow.title}</strong>
+              <em>{workflow.staffApproval}</em>
+            </div>
+          ))}
+        </div>
+
+        <div className="panel wide">
+          <h2>Connected services</h2>
+          {integrationStatuses.map((integration) => (
+            <div className="audit-row" key={integration.name}>
+              <span>{integration.status.replace('_', ' ')}</span>
+              <strong>{integration.name}</strong>
+              <em>{integration.boundary}</em>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <AgentCommandPanel />
 

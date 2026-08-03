@@ -19,6 +19,9 @@ Gate coverage:
 ## Security baseline
 - Security headers configured in `next.config.ts`.
 - `/api/agent/tasks` validates all request bodies with Zod.
+- `/api/clinic/profile` validates operating profiles with Zod and rejects mismatched `x-clinic-slug` tenant writes.
+- `/api/clinic/profile` requires a signed `x-flawgent-session`; write access is limited to `owner` and `manager`.
+- Clinic profile persistence is limited to non-PHI setup data until database-backed encryption is implemented.
 - Human approval is required by default for patient-facing/outbound actions.
 - Raw PHI and prompts must not be logged.
 - Secrets must stay in 1Password/env vars; never in repo.
@@ -31,11 +34,15 @@ Gate coverage:
 - Required production env vars:
   - `NEXT_PUBLIC_APP_URL`
   - `DATABASE_URL`
+  - `CLINIC_PROFILE_STORE_PATH`
   - `ENCRYPTION_KMS_KEY_REF`
+  - `APP_ACCESS_TOKEN`
+  - `SESSION_SECRET`
 
 ## Beta launch blockers still requiring real integration work
-- Authentication/session provider selection and implementation.
+- External authentication/session provider selection and implementation; current clinic API sessions are signed internal tokens.
 - Real encrypted PHI persistence and KMS/envelope encryption implementation.
+- Promotion of tenant profile persistence from file-backed setup data into the selected database layer.
 - Cloud storage connector authorization for clinic-owned Drive/OneDrive/SharePoint.
 - Billing/KYC/Stripe activation.
 - Real patient-link token hashing and PDF generation pipeline.

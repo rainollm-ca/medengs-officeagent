@@ -14,8 +14,12 @@ describe('production readiness checks', () => {
       DATABASE_URL: 'postgresql://example',
       NEXT_PUBLIC_APP_URL: 'https://officeagent.medengs.ca',
       ENCRYPTION_KMS_KEY_REF: 'op://Shared – DevOps/medengs-officeagent-kms/key',
+      APP_ACCESS_TOKEN: 'configured-at-deploy-time',
+      SESSION_SECRET: 'configured-at-deploy-time',
     });
 
-    expect(summarizeReadiness(checks)).toMatchObject({ status: 'pass', failed: 0 });
+    expect(summarizeReadiness(checks)).toMatchObject({ status: 'warn', failed: 0 });
+    expect(checks.some((check) => check.name === 'clinical-boundary:provider-approval')).toBe(true);
+    expect(checks.some((check) => check.name === 'security:signed-clinic-sessions')).toBe(true);
   });
 });

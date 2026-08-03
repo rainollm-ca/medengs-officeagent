@@ -1,4 +1,3 @@
-import path from 'node:path';
 import type { NextConfig } from 'next';
 
 const securityHeaders = [
@@ -27,10 +26,12 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  outputFileTracingRoot: path.resolve(__dirname),
   poweredByHeader: false,
   reactStrictMode: true,
   typedRoutes: true,
+  turbopack: {
+    root: __dirname,
+  },
   async headers() {
     return [
       {

@@ -9,7 +9,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "verify": "npm run typecheck && npm run lint && npm run test && npm run build && npm audit --audit-level=moderate"
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run build && npm audit --audit-level=moderate",
+    "smoke:prod": "node scripts/production-smoke.mjs",
+    "verify:prod": "npm run typecheck && npm run lint && npm run test && npm run build && npm audit --audit-level=moderate && npm run smoke:prod"
   },
   "dependencies": {
     "next": "^16.2.6",
