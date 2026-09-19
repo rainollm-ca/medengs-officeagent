@@ -77,6 +77,26 @@ export const clinicOperatingProfileSchema = z.object({
   }),
 });
 
+/**
+ * Intake webhook schema — n8n → OfficeAgent bridge (Pilot gate P1).
+ * Deliberately restricted to demo-safe fields only.
+ * No PHI: no DOB, no health card, no SIN, no insurance details, no health history.
+ */
+export const intakeWebhookSchema = z.object({
+  clinic_slug: z.string().trim().min(2).max(80).regex(/^[a-z0-9-]+$/, 'clinic_slug must be lowercase letters, numbers, or hyphens'),
+  patient_name: z.string().trim().min(2).max(120),
+  patient_phone: z.string().trim().min(7).max(32).optional(),
+  patient_email: z.string().trim().email().optional(),
+  chief_concern: z.string().trim().max(400).optional(),
+  preferred_appointment_time: z.string().trim().max(120).optional(),
+});
+
+export type IntakeWebhookInput = z.infer<typeof intakeWebhookSchema>;
+
+export function parseIntakeWebhook(input: unknown): IntakeWebhookInput {
+  return intakeWebhookSchema.parse(input);
+}
+
 export type CreateAgentTaskInput = z.infer<typeof createAgentTaskSchema>;
 export type CreateClinicalNoteDraftInput = z.infer<typeof createClinicalNoteDraftSchema>;
 export type ClinicOperatingProfileInput = z.infer<typeof clinicOperatingProfileSchema>;
